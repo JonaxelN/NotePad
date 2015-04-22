@@ -16,6 +16,7 @@
 
 package com.jonaxel.example.notepad;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -28,9 +29,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class Notepadv1 extends ListActivity {
+public class Notepadv1 extends Activity {
     private int mNoteNumber = 1;
     private NotesDbAdapter mDbHelper;
+
+    private ListView lista;
 
     private static final int ACTIVITY_CREATE = 0;
     private static final int ACTIVITY_EDIT = 1;
@@ -46,11 +49,13 @@ public class Notepadv1 extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notepad_list);
 
+        lista = (ListView) findViewById(R.id.lista);
+
         mDbHelper = new NotesDbAdapter(this);
         mDbHelper.open();
         fillData();
 
-        registerForContextMenu(getListView());
+        //registerForContextMenu(getListView());
     }
 
     @Override
@@ -89,7 +94,7 @@ public class Notepadv1 extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
+    /*@Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
@@ -97,7 +102,7 @@ public class Notepadv1 extends ListActivity {
         i.putExtra(NotesDbAdapter.KEY_ROWID, id);   //Pass the id of the note we want to edit
 
         startActivityForResult(i, ACTIVITY_EDIT);
-    }
+    }*/
 
     //Handler for the callback
     @Override
@@ -118,9 +123,21 @@ public class Notepadv1 extends ListActivity {
         int[] to = new int[]{R.id.text1};
 
         // Now create a simple cursor adapter and set it to display
-        SimpleCursorAdapter notes =
-                new SimpleCursorAdapter(this, R.layout.notes_row, NotesCursor, from, to);
-        setListAdapter(notes);
+        /*SimpleCursorAdapter notes =
+                new SimpleCursorAdapter(this, R.layout.notes_row, NotesCursor, from, to);*/
+        //setListAdapter(notes);
+
+        NotesListAdapter adapter = new NotesListAdapter(this, NotesCursor, 0);
+        lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(getApplicationContext(), NoteEdit.class);
+                intent.putExtra(NotesDbAdapter.KEY_ROWID, l);   //Pass the id of the note we want to edit
+
+                startActivityForResult(intent, ACTIVITY_EDIT);
+            }
+        });
+        lista.setAdapter(adapter);
     }
 
     private void createNote() {
